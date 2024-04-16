@@ -1,0 +1,25 @@
+/*noinspection ALL*/
+node {
+    shape: box;
+    size: 60px, 40px;
+    fill-color: #CCCCCC;
+    text-size: 20px;
+    text-color: black;
+    stroke-mode: plain;
+    stroke-color: black;
+}
+
+node.yTree {
+    fill-color: red;
+}
+
+node.leaf {
+    shape: box;
+    fill-color: green;
+}
+
+edge {
+    shape: line;
+    fill-color: black;
+    size: 4px;
+}
