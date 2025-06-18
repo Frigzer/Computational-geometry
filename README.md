@@ -133,3 +133,198 @@ All elements are visualized with unique color codes to help differentiate betwee
 
 ---
 
+## Lab 4 – Triangle Area, Point Inclusion, and Polygon Representation
+
+This lab enhances the geometry engine with support for triangle area computation, advanced point-in-shape tests, and complete polygon handling with inclusion checks and drawing support.
+
+### Triangle Functionality
+
+#### Area Calculation
+Implements the Heron's formula to compute triangle area using its three side lengths:
+
+```java
+double area = triangle.calculateArea();
+```
+
+#### Point Inclusion (Two Methods)
+
+1. **Line-based test**: Checks on which side of each triangle edge the test point lies. If consistent, the point is inside.
+2. **Area-based test**: Sums the areas of three triangles formed between the test point and triangle edges; if it matches the total area, the point is inside.
+
+```java
+triangle.containsPointByLines(testPoint);
+triangle.containsPointByArea(testPoint);
+```
+
+### Area Between Two Lines
+
+This functionality is interpreted as computing the angle between two line segments and drawing them for visual analysis:
+
+```java
+double angle = line1.angleBetweenLines(line2);
+```
+
+It uses vector dot product and arccos to compute the angle in degrees.
+
+---
+
+### Polygon Support
+
+#### Polygon Class
+
+A new `Polygon` class supports creation from an arbitrary number of points. Edges are automatically built into `Line` objects.
+
+#### Point Inclusion in Polygon
+
+Uses a ray-casting approach in four directions (left, right, top, bottom). If all ray intersections yield an odd count, the point is inside.
+
+```java
+polygon.containsPoint(testPoint);
+```
+
+> Edge cases such as colinearity are handled by detecting if a point lies exactly on a polygon edge.
+
+#### Rendering
+
+Polygons are rendered as filled shapes with colored vertices and boundary. Points used to define the polygon are visualized distinctly for clarity.
+
+```java
+panel.drawPolygon(polygon, Color.BLUE);
+```
+
+---
+
+### Example Usage (from `Main.java`)
+
+```java
+Triangle triangle = new Triangle(p1, p2, p3);
+triangle.print();
+triangle.containsPointByLines(testPoint);
+triangle.containsPointByArea(testPoint);
+
+Polygon polygon = new Polygon();
+polygon.addPoint(p1); polygon.addPoint(p2); ...
+polygon.containsPoint(testPoint);
+```
+
+The results are visible both via printed output and graphical rendering in the Swing GUI.
+
+---
+
+## Lab 5 – Convex Hull Algorithms and Collision Simulation
+
+This lab focuses on two major computational geometry tasks:
+1. Computing convex hulls using two classic algorithms.
+2. Simulating and detecting collisions between a spaceship and high-velocity missiles in a 2D space.
+
+---
+
+### Task 1 – Convex Hull Algorithms
+
+#### Implemented Algorithms
+
+- **Jarvis March (Gift Wrapping)**:
+  Iteratively selects the leftmost point and wraps around the set by selecting the most counter-clockwise point.
+
+```java
+convexHull.calculateJarvis();
+```
+
+* **QuickHull**:
+  Recursive divide-and-conquer algorithm inspired by QuickSort. Starts with extreme points, recursively builds the hull by finding farthest points from a dividing line.
+
+  ```java
+  convexHull.calculateQuickHull();
+  ```
+
+#### Point File Format
+
+Points are read from a `.txt` file with the following structure:
+
+```
+[number of points]
+x1 y1
+x2 y2
+...
+```
+
+Custom parser reads these into a list of `Point` objects.
+
+#### Visual Comparison
+
+Both algorithms are applied to each input dataset and rendered side-by-side using distinct color-coded convex hull edges and input points for easy comparison.
+
+```java
+ConvexHull convexHull = new ConvexHull("shape.txt");
+convexHull.calculateQuickHull();
+panel.drawConvexHull(convexHull);
+```
+
+---
+
+### Task 2 – Spacecraft Collision Detection
+
+#### Scenario
+
+The battlefield is a 1000×1000 grid. A spaceship moves through space, and missiles are launched by the enemy. The goal is to:
+
+* Simulate movement over 2 seconds (updated every 0.1s)
+* Track missiles' trajectory and detect collisions with the spaceship
+* Visualize the event using the ship’s convex hull and explosion indicators
+
+#### Input Files
+
+* **`craft.txt`** – Static point cloud defining the ship's shape.
+* **`space_craft.txt`** – Initial position and velocity vector of the ship.
+* **`missiles.txt`** – List of missiles in the format:
+
+  ```
+  [spawnTime] [x0] [y0] [dx] [dy]
+  ```
+
+Each missile has its own velocity and appears at a specified simulation time.
+
+#### Core Mechanics
+
+* **Dynamic positioning**: The ship is rotated and translated based on its velocity vector.
+* **Bounding detection**: Collision is checked using the ship's convex hull and geometric distance between a missile and the hull sides.
+* **Explosions**: Upon collision, a graphical explosion is drawn, and the missile is removed.
+
+```java
+spaceship.setPosition("space_craft.txt");
+panel.drawConvexHull(spaceship);
+
+List<Point> missiles = loadMissile("missiles.txt");
+
+Timer timer = new Timer(10, e -> {
+    spaceship.setInMotion("space_craft.txt");
+    for (Point missile : missiles) {
+        if (missile.spawnTime == time) {
+            panel.drawPoint(missile, Color.RED);
+            missile.spawned = true;
+        }
+        spaceship.detectCollision(missile, panel, time);
+    }
+    setInMotion(missiles, panel);
+});
+timer.start();
+```
+
+#### Visual Output
+
+* **Convex hull**: Updated every frame to follow ship motion
+* **Missiles**: Tracked in real-time
+* **Explosions**: Shown at the exact moment and location of collision
+
+---
+
+### File Structure Summary
+
+* `ConvexHull.java`: Implements both convex hull algorithms and collision logic
+* `Panel.java`: Handles all rendering, including hulls, points, explosions
+* `Main.java`: Coordinates simulation logic and I/O
+* `Point`, `Line`, `Triangle`, `Polygon`: Core geometry types
+* `Frame.java`: Sets up the main application window using Swing
+
+---
+
