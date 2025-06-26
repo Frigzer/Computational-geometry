@@ -328,3 +328,117 @@ timer.start();
 
 ---
 
+## Lab 6 – Range Tree (1D & 2D)
+
+This lab introduces the implementation of **Range Trees**, a data structure used for efficient multi-dimensional range queries. Two variants are implemented: 1D and 2D.
+
+---
+
+### 1D Range Tree
+
+#### Features
+
+- Builds a balanced binary search tree on a set of 1D integer points
+- Allows fast querying for points within a specified interval
+
+#### Building the Tree
+
+Points are first sorted, then inserted recursively using the median split:
+
+```java
+int[] points = {49, 37, 3, 10, 19, ...};
+RangeTree1D tree = new RangeTree1D();
+tree.build(points);
+```
+
+#### Range Query
+
+```java
+List<Integer> result = tree.queryRange(25, 90);
+```
+
+The query visits only necessary subtrees using BST logic.
+
+#### Complexity
+
+* **Time (worst-case)**: `O(n)`
+* **Time (average)**: `O(log n + k)` where `k` is the number of points in range
+* **Space**: `O(n)` for nodes, assuming balanced structure
+
+#### Visualization
+
+Tree is visualized using **GraphStream**, with:
+
+* Nodes positioned by depth
+* Leaves marked visually
+* Optional styles applied via external `style.css`
+
+```java
+Main1D.visualize(tree);
+```
+
+---
+
+### 2D Range Tree
+
+#### Features
+
+* Tree is built by first sorting points by **x-coordinate**
+* Each node contains a full **YTree**, sorted by **y-coordinate**
+* Allows efficient querying in a 2D rectangular region
+
+#### Building the Tree
+
+```java
+int[][] points = {
+  {3, 8}, {4, 2}, {1, 5}, {6, 7}, ...
+};
+RangeTree2D tree = new RangeTree2D();
+tree.build(points);
+```
+
+Each `Node` contains a 1D Y-tree for fast vertical queries.
+
+#### Range Query
+
+```java
+List<RangeTree2D.Node> result = tree.queryRange(xStart, xEnd, yStart, yEnd);
+```
+
+YTree is queried only for subtrees where x-coordinates fall within bounds.
+
+#### Complexity
+
+* **Time (worst-case)**: `O(n)`
+* **Time (average)**: `O(log² n + k)`
+* **Space**: `O(n log n)` due to auxiliary Y-trees at each node
+
+#### Visualization
+
+Each 2D tree node opens a separate Y-tree window:
+
+* X-tree is displayed with coordinates labeled `(x, y)`
+* Y-tree is dynamically rendered per node using GraphStream
+
+```java
+Main.visualizeXTree(tree);
+```
+
+#### Memory Usage Insight
+
+Using datasets of increasing size (20 to 100 points), memory consumption rises due to:
+
+* Extra Y-trees built per X-node
+* Graph rendering for each subtree
+  Ideal for demonstrating space-time tradeoffs in geometric data structures.
+
+---
+
+### Key Classes
+
+* `RangeTree1D`, `RangeTree2D`: Data structures with recursive construction
+* `YTree`: Subtree for vertical range filtering
+* `Main1D.java`, `Main.java`: Execute and visualize 1D/2D cases
+* `GraphStream`: For interactive UI visualization of structure and queries
+
+---
